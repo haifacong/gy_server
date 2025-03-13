@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>User and Result Management</title>
+    <link rel="stylesheet" href="../static/element-ui/lib/theme-chalk/index.css">
+    <style>
+        .el-container {
+            height: 100vh;
+        }
+        .el-aside, .el-main {
+            padding: 20px;
+        }
+        .separator {
+            border-left: 2px dashed #ccc;
+            height: calc(100vh - 40px);
+            margin-top: 20px;
+        }
+        a {
+            text-decoration: none;
+        }
+        .img-cell img {
+            width: 100px; /* 可以根据需要调整图片大小 */
+            height: auto;
+        }
+    </style>
+</head>
+<body>
+<div id="app">
+    <el-container>
+        <el-aside width="30%">
+            <div style="margin-bottom: 20px;">
+                <h3>用户表查询</h3>
+                <el-input v-model="userSearch.username" placeholder="请输入用户名"></el-input>
+                <el-button type="primary" @click="fetchUsers">搜索</el-button>
+            </div>
+            <el-table :data="userTableData" style="width: 100%;">
+                <el-table-column prop="username" label="用户名"></el-table-column>
+                <el-table-column prop="password" label="密码"></el-table-column>
+            </el-table>
+            <el-pagination
+                @size-change="handleUserSizeChange"
+                @current-change="handleUserCurrentChange"
+                :current-page="userSearch.currentPage"
+                :page-sizes="[5, 10, 20]"
+                :page-size="userSearch.pageSize"
+                layout="total, sizes, prev, pager, next, jumper"
+                :total="userSearch.total">
+            </el-pagination>
+        </el-aside>
+
+        <div class="separator"></div>
+
+        <el-main>
+            <div style="margin-bottom: 20px;">
+                <h3>结果表查询</h3>
+                <el-input v-model="resultSearch.keyword" placeholder="请输入关键词"></el-input>
+                <el-button type="primary" @click="fetchResults">搜索</el-button>
+            </div>
+            <el-table :data="resultTableData" style="width: 100%;">
+                <el-table-column label="检测地址">
+                    <template v-slot="scope">
+                        <div class="img-cell">
+                            <img :src="'http://localhost:8000/' +scope.row.detect_url" alt="检测地址">
+                        </div>
+                    </template>
+                </el-table-column>
+                <el-table-column label="结果地址">
+                    <template v-slot="scope">
+                        <div class="img-cell">
+                            <img :src="'http://localhost:8000/' +scope.row.result_url" alt="结果地址">
+                        </div>
+                    </template>
+                </el-table-column>
+                <el-table-column prop="clazz" label="类别"></el-table-column>
+                <el-table-column prop="score" label="得分"></el-table-column>
+                <el-table-column prop="detect_time" label="检测时间"></el-table-column>
+                <el-table-column prop="username" label="用户名"></el-table-column>
+            </el-table>
+            <el-pagination
+                @size-change="handleResultSizeChange"
+                @current-change="handleResultCurrentChange"
+                :current-page="resultSearch.currentPage"
+                :page-sizes="[5, 10, 20]"
+                :page-size="resultSearch.pageSize"
+                layout="total, sizes, prev, pager, next, jumper"
+                :total="resultSearch.total">
+            </el-pagination>
+        </el-main>
+    </el-container>
+</div>
+
+<script src="../static/js/vue.js"></script>
+<script src="../static/element-ui/lib/index.js"></script>
+<script src="../static/axios/dist/axios.js"></script>
+<script>
+    let app = new Vue({
+        el: '#app',
+        data: {
+            userSearch: {
+                username: '',
+                currentPage: 1,
+                pageSize: 5,
+                total: 0,
+            },
+            userTableData: [],
+            resultSearch: {
+                keyword: '',
+                currentPage: 1,
+                pageSize: 5,
+                total: 0,
+            },
+            resultTableData: [],
+        },
+        methods: {
+            fetchUsers() {
+                axios.post('http://localhost:8000/fetch_users/', {
+                    username: this.userSearch.username,
+                    userCurrentPage: this.userSearch.currentPage,
+                    userPageSize: this.userSearch.pageSize
+                })
+                .then(res => {
+                    if (res.data.status === 200) {
+                        this.userTableData = res.data.data;
+                        this.userSearch.total = res.data.total;
+                        this.userSearch.currentPage = res.data.current_page;
+                    } else {
+                        console.error('Error fetching users:', res.data.message);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error fetching users:', error);
+                });
+            },
+            handleUserSizeChange(size) {
+                this.userSearch.pageSize = size;
+                this.fetchUsers();
+            },
+            handleUserCurrentChange(page) {
+                this.userSearch.currentPage = page;
+                this.fetchUsers();
+            },
+
+            fetchResults() {
+                axios.post('http://localhost:8000/fetch_results/', {
+                    keyword: this.resultSearch.keyword,
+                    resultCurrentPage: this.resultSearch.currentPage,
+                    resultPageSize: this.resultSearch.pageSize
+                })
+                .then(res => {
+                    if (res.data.status === 200) {
+                        this.resultTableData = res.data.data;
+                        this.resultSearch.total = res.data.total;
+                        this.resultSearch.currentPage = res.data.current_page;
+                    } else {
+                        console.error('Error fetching results:', res.data.message);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error fetching results:', error);
+                });
+            },
+            handleResultSizeChange(size) {
+                this.resultSearch.pageSize = size;
+                this.fetchResults();
+            },
+            handleResultCurrentChange(page) {
+                this.resultSearch.currentPage = page;
+                this.fetchResults();
+            }
+        },
+        mounted() {
+            this.fetchUsers();
+            this.fetchResults();
+        }
+    });
+</script>
+</body>
+</html>

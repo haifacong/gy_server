@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>index</title>
+    <!-- 引入样式 -->
+    <link rel="stylesheet" href="../static/element-ui/lib/theme-chalk/index.css">
+    <script src="../static/js/vue.js"></script>
+    <!-- 引入组件库 -->
+    <script src="../static/element-ui/lib/index.js"></script>
+    <style>
+        .el-row {
+            margin-bottom: 20px;
+
+            &:last-child {
+                margin-bottom: 0;
+            }
+        }
+
+        .el-col {
+            border-radius: 4px;
+        }
+
+        .bg-purple-dark {
+            background: #99a9bf;
+        }
+
+        .bg-purple {
+            background: #d3dce6;
+        }
+
+        .bg-purple-light {
+            background: #e5e9f2;
+        }
+
+        .grid-content {
+            border-radius: 4px;
+            min-height: 36px;
+        }
+
+        .row-bg {
+            padding: 10px 0;
+            background-color: #f9fafc;
+        }
+        /* 去掉 a 标签的下划线*/
+        a {
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+<div id="app">
+    <div style="background-color: #61ceaf">
+        <el-row>
+            <el-col :span="4" :offset="4">
+                <a href="" class="el-button el-button--primary">系统首页</a>
+            </el-col>
+            <el-col :span="4">
+                <a href="{% url 'detect' %}" target="bottom" class="el-button el-button--primary">图片检测</a>
+            </el-col>
+            <el-col :span="4">
+                <a href="{% url 'datamanage' %}" target="bottom" class="el-button el-button--primary">数据管理</a>
+            </el-col>
+            <el-col :span="4">
+                <a href="{% url 'change_password' %}" target="bottom" class="el-button el-button--primary">个人中心</a>
+            </el-col>
+        </el-row>
+    </div>
+    <div style="height: 645px;width: 100%;border: 1px solid black;">
+        <iframe src="{% url 'welcome' %}" name="bottom" style="height: 645px;width: 100%;" frameborder="0" scrolling="no"></iframe>
+    </div>
+</div>
+<script>
+    let app = new Vue({
+        el: "#app",
+        methods: {
+           
+        }
+    });
+</script>
+</body>
+</html>
